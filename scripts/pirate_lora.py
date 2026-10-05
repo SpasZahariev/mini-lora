@@ -239,8 +239,15 @@ def train(rank, alpha=None, epochs=1):
     model.save_pretrained(dest)
     tok.save_pretrained(dest)
 
+    # Trainer already logs learning_rate + grad_norm alongside loss -
+    # persist all three so issue #4 can plot loss/LR/grad-norm comparisons.
     train_losses = [
-        {"step": e["step"], "loss": e["loss"]}
+        {
+            "step": e["step"],
+            "loss": e["loss"],
+            "lr": e.get("learning_rate"),
+            "grad_norm": e.get("grad_norm"),
+        }
         for e in trainer.state.log_history
         if "loss" in e
     ]
