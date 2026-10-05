@@ -1,0 +1,9 @@
+{
+  "dataset": "quill-voice/pirate",
+  "seed": 42,
+  "test_size": 0.1,
+  "train_n": 712,
+  "val_n": 80,
+  "holdout_n": 5,
+  "total_n": 797
+}

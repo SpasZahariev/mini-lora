@@ -9,6 +9,8 @@ dependencies = [
   "ipykernel>=6.29",
   "nbformat>=5.10",
   "nbclient>=0.10",
+  "transformers>=5.18.0",
+  "datasets>=5.1.0",
 ]
 
 # NOTE: torch (ROCm) is intentionally NOT a project dependency.
