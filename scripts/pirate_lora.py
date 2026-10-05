@@ -178,8 +178,12 @@ def pad_collator(tok):
     return collate
 
 
-def train(rank, alpha=None, epochs=1):
-    """Train one LoRA adapter; saves adapters/pirate-r{rank}/ + train_log json."""
+def train(rank, alpha=None, epochs=1, suffix=""):
+    """Train one LoRA adapter; saves adapters/pirate-r{rank}{suffix}/ + log json.
+
+    suffix keeps experiments side by side (e.g. '-e3' for the 3-epoch
+    follow-up in issue #6) - never silently overwrite a prior adapter.
+    """
     import torch
     from transformers import TrainingArguments, Trainer, set_seed
     from peft import LoraConfig, get_peft_model
@@ -235,9 +239,8 @@ def train(rank, alpha=None, epochs=1):
     )
     trainer.train()
 
-    dest = ADAPTERS_DIR / f"pirate-r{rank}"
+    dest = ADAPTERS_DIR / f"pirate-r{rank}{suffix}"
     model.save_pretrained(dest)
-    tok.save_pretrained(dest)
 
     # Trainer already logs learning_rate + grad_norm alongside loss -
     # persist all three so issue #4 can plot loss/LR/grad-norm comparisons.
@@ -271,7 +274,7 @@ def train(rank, alpha=None, epochs=1):
         "eval_losses": eval_losses,
     }
     ADAPTERS_DIR.mkdir(exist_ok=True)
-    (ADAPTERS_DIR / f"train_log_r{rank}.json").write_text(json.dumps(log, indent=2))
+    (ADAPTERS_DIR / f"train_log_r{rank}{suffix}.json").write_text(json.dumps(log, indent=2))
     print(f"saved adapter -> {dest}")
     return log
 
@@ -281,6 +284,8 @@ def main(argv=None):
     ap.add_argument("--rank", type=int, required=True)
     ap.add_argument("--alpha", type=int, default=None)
     ap.add_argument("--epochs", type=int, default=1)
+    ap.add_argument("--suffix", type=str, default="",
+                    help="appended to adapter/log names, e.g. -e3 (never overwrite)")
     ap.add_argument("--before-only", action="store_true",
                     help="only decode holdouts on base model into data/before.json")
     ns = ap.parse_args(argv)
@@ -295,7 +300,7 @@ def main(argv=None):
             print(f"PROMPT: {s['prompt']}\nREPLY: {s['reply']}\n")
         return 0
 
-    train(ns.rank, ns.alpha, ns.epochs)
+    train(ns.rank, ns.alpha, ns.epochs, ns.suffix)
     return 0
 
 
