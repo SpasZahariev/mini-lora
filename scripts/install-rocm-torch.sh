@@ -4,6 +4,11 @@
 # AMD's wheel index. Everything else still resolves from PyPI.
 #
 # Usage: ./scripts/install-rocm-torch.sh
+#
+# IMPORTANT: re-run this script after EVERY `uv sync` / `uv add`.
+# `accelerate` pulls PyPI torch (CUDA/CPU-only) into the lock, and plain
+# `uv run` re-syncs the venv back to it. So: run everything with
+# `uv run --no-sync ...` (or .venv/bin/python directly), which skips sync.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

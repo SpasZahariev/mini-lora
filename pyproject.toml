@@ -11,14 +11,17 @@ dependencies = [
   "nbclient>=0.10",
   "transformers>=5.18.0",
   "datasets>=5.1.0",
+  "peft>=0.21.2",
+  "accelerate>=1.15.0",
 ]
 
 # NOTE: torch (ROCm) is intentionally NOT a project dependency.
 # PyPI torch wheels are CUDA/CPU-only. On this box (RX 7900 XTX, gfx1100)
 # install the AMD ROCm build explicitly (pinned, reproducible):
 #   ./scripts/install-rocm-torch.sh
-# which is equivalent to:
-#   uv pip install "torch==2.10.0+rocm7.13.0" "torchvision==0.25.0+rocm7.13.0" \
-#     --index-url https://repo.amd.com/rocm/whl/gfx110X-all/ \
-#     --extra-index-url https://pypi.org/simple
+# Rules (read this before touching the env):
+# - Re-run that script after EVERY `uv sync` / `uv add` (`accelerate`
+#   drags PyPI torch into the lock and sync would otherwise revert HIP).
+# - Run everything with `uv run --no-sync ...` so uv never re-syncs
+#   PyPI torch over the AMD build.
 # See scripts/install-rocm-torch.sh and notebooks/01-pirate-lora.ipynb cell 0.
